@@ -17,6 +17,7 @@ import org.json.simple.parser.JSONParser;
 
 public class WEATHER {
 	HashMap	<String, String> maps = new HashMap<>();
+	String ServiceKey = "YOUR_OPEN-API_KEY";
 
 	void Getweather() {
         try {
@@ -24,7 +25,6 @@ public class WEATHER {
         	String ny = "128";
         	String baseDate = "20230412";
         	String baseTime = "1100";
-        	String ServiceKey = "YOUR_API_KEY";
         	
         	String urlStr = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=" + ServiceKey + "&dataType=JSON&base_date=" +baseDate + "&base_time=" + baseTime + "&nx=" + nx + "&ny=" + ny;
 			URL url = new URL(urlStr);
@@ -81,7 +81,6 @@ public class WEATHER {
         try {
         	String sidoName = "서울";
         	String cityName = "노원구";
-        	String ServiceKey = "YOUR_API_KEY";
 
         	String urlStr = "http://apis.data.go.kr/B552584/ArpltnStatsSvc/getCtprvnMesureSidoLIst?serviceKey=" + ServiceKey + "&returnType=JSON&sidoName=" + URLEncoder.encode(sidoName,"UTF-8") + "&searchCondition=HOUR";
 			URL url = new URL(urlStr);

@@ -17,9 +17,10 @@ public class HOMEPAGE {
 		try {
 			itemlist.clear();
 			Document doc = Jsoup.connect(url).get();
-			category = doc.title(); //.replace("서울과학기술대학교 ", "").replace("- ", "");
+			category = doc.title().replace("서울과학기술대학교 - 정보·민원서비스 - 대학정보알림 - ", "");
 			Makeitem(doc.select("tr.body_tr"), 1);
 			MANAGER.totalnotice += itemlist.size();
+			MANAGER.Logwriter("HOMEPAGE::Load", category + '(' + itemlist.size() + ')');
 		}
 		catch(Exception e){
 			MANAGER.Logwriter("HOMEPAGE::Load", "<Exception> " + url);
@@ -28,7 +29,6 @@ public class HOMEPAGE {
 	}
 	
 	void Makeitem(Elements body, int depth){
-		ITEM item;
 		int count = body.size();
 		try {
 			for(int i = 0; i < count; i++) {
@@ -40,12 +40,11 @@ public class HOMEPAGE {
 				String title = temp.select(".dn2").text();
 				String uploader = temp.select(".dn4").text();
 				String date = temp.select(".dn5").text();
-				if (MANAGER.date.compareTo(temp.get(4).text()) != 0) continue; //if upload date is not today, drop
+				if (MANAGER.date.compareTo(date) != 0) continue; //if upload date is not today, drop
 				if(depth != 1 && number == "") continue;//ignore second page notification
 				
 				//Save Item
-				item = new ITEM(number,title,uploader,itemurl);
-				itemlist.add(item);
+				itemlist.add(new ITEM(number,title,uploader,itemurl));
 				
 				//are there more notifications left? repeat next page
 				//for safety, max depth = 5

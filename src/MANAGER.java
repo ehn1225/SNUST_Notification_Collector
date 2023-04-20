@@ -7,37 +7,34 @@ import java.util.Iterator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.sql.ResultSet;
+
 
 public class MANAGER {
 	static int totalnotice = 0; //아이템의 개수
-	Vector<HOMEPAGE> pagelist; //페이지 배열
+	Vector<HOMEPAGE> pagelist; //홈페이지 배열
 	static String date = "";
-	//WEATHER weather;
+	Connection conn;
 
 	void Upload() {
-		//DB 최신화 로직 필요
-		//또한, 매일 새로운 테이블로 구분함으로써 과거의 공지도 볼 수 있게하기
-		//날짜별 테이블 생성 및 truncate 대신 replace와 유효성 검사.
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection conn;
-			final String ADDR = ""; // Ex)192.168.0.122:3306/NOTICE
-			final String ID = ""; //Insert your database account
-			final String PASSWORD = "";
-			conn = DriverManager.getConnection("jdbc:mysql://"+ ADDR, ID, PASSWORD);
+			java.sql.Statement stmt = conn.createStatement();
+	        
+			//오늘 날짜로 된 테이블이 없다면 생성	        
+	        String sqlQuery = "CREATE TABLE IF NOT EXISTS " + date + 
+	        		"(url TEXT NOT NULL PRIMARY KEY, category TEXT, number INTEGER, title TEXT, uploader TEXT, timestamp TEXT);";
+			stmt.execute(sqlQuery);
 			
-	        java.sql.Statement stmt = conn.createStatement();
-			stmt.execute("TRUNCATE TABLE notice");
 			PreparedStatement pstmt = null;
-	        String sql = "insert into notice values(?,?,?,?,?,?);";
+	        String sql = "INSERT INTO " + date + "(url, category, number, title, uploader, timestamp) VALUES "
+	        		+ "(?, ?, ?, ?, ?, (datetime('now', 'localtime')) WHERE NOT EXISTS(SELECT URL FROM " + date + " WHERE URL=?);";
 			
-			int i = 1;
 			for(HOMEPAGE page : pagelist) {
 				Iterator<ITEM> seek = page.itemlist.iterator();
 				while(seek.hasNext()) {
 					ITEM item = seek.next();
 					 pstmt = conn.prepareStatement(sql);
-				     pstmt.setInt(1, i++); //auto increse 사용하거나 없애기.
+				     pstmt.setString(1, page.url+item.url);
 				     pstmt.setString(2, page.category);
 				     pstmt.setInt(3, item.num);
 				     pstmt.setString(4, item.title);
@@ -46,22 +43,77 @@ public class MANAGER {
 				     pstmt.executeUpdate();
 				}
 			}		
-			stmt.execute("TRUNCATE TABLE noticeuptime");
-			stmt.executeUpdate("insert into noticeuptime values('" + Gettime() + "')");		
+			stmt.execute("Replace into UpdateTime values(datetime('now', 'localtime'))");		
 			stmt.close();
 			Logwriter("MANAGER::Upload", "Complete sql upload.");
 			if (pstmt != null && !pstmt.isClosed())
                  pstmt.close();
 		}
-	    catch (ClassNotFoundException e) {
-	    	Logwriter("MANAGER::Upload", "<ClassNotFoundException>");
-	        System.out.println(e);
-	    }
 		catch (SQLException e) {
             e.printStackTrace();
         }
 		catch (Exception e) {
 			Logwriter("MANAGER::Upload", "<Exception>");
+			System.out.println(e);
+		}
+	}
+	void ValidationCheck() {
+		//DB의 모든 URL 리스트 순회하면서 URL에 접속되는지 -> 조회수가 증가할 수 있음
+		//DB의 모든 URL을 리스트로 가져오고, Upload할 때 마다 제거하는 식으로 검증
+		//리스트에 남아있는 것은 삭제된 게시글 -> DB에서 삭제.
+		Vector<String> list = new Vector<String>(); 
+        try{
+			java.sql.Statement stmt = conn.createStatement();
+			String sql = "SELECT url FROM " + date;
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next()){
+				String url = rs.getString(1);
+				list.add(url);
+			}
+			
+			for(HOMEPAGE page : pagelist) {
+				Iterator<ITEM> seek = page.itemlist.iterator();
+				while(seek.hasNext()) {
+					ITEM item = seek.next();
+					if(list.contains(item.url)) {
+						list.remove(item.url);
+					}
+				}
+			}
+			
+			//List에 남아 있는 것은 삭제된 게시글이므로, DB에서 DELETE 수행
+			int deleteSize = list.size();
+			for(String url : list) {
+				stmt.execute("DELETE FROM " + date + " WHERE url='" + url +"';");		
+			}
+			stmt.close();
+			Logwriter("MANAGER::ValidationCheck", "ValidationCheck Complete(" + deleteSize + "item removed)");
+
+        }
+		catch(SQLException e){
+            e.printStackTrace();
+        }
+	}	
+	void CreateConnection() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			String ADDR = "192.168.12.12";
+			String ID = "";
+			String PASSWORD = "";
+			conn = DriverManager.getConnection("jdbc:mysql://"+ ADDR, ID, PASSWORD);
+	    	Logwriter("MANAGER::CreateConnection", "DB connection successful");
+		}
+		
+	    catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
+	    	Logwriter("MANAGER::CreateConnection", "CommunicationsException : Check DB Connection Information");
+	        System.out.println(e);
+	    }
+	    catch (ClassNotFoundException e) {
+	    	Logwriter("MANAGER::CreateConnection", "ClassNotFoundException : Failed to load JDBC driver");
+	        System.out.println(e);
+	    }
+		catch (Exception e) {
+			Logwriter("MANAGER::CreateConnection", "Exception");
 			System.out.println(e);
 		}
 	}
@@ -80,7 +132,6 @@ public class MANAGER {
 		try{
 			Setdate();
 			pagelist = new Vector<HOMEPAGE>();
-			//weather = new WEATHER();
             FileReader filereader = new FileReader(filename);
             BufferedReader bufReader = new BufferedReader(filereader);
             String line = "";
@@ -93,6 +144,7 @@ public class MANAGER {
             Logwriter("MANAGER::Constructor", "Number of URLs read : " + pagelist.size());
             bufReader.close();
             filereader.close();            
+            CreateConnection();
         }catch (FileNotFoundException e) {
             Logwriter("MANAGER::Constructor", "<FileNotFoundException>Check URL file name!");
             System.out.println(e);
@@ -108,9 +160,7 @@ public class MANAGER {
 			Setdate();
 			Getnotice();
 			Upload();
-			//weather.Getweather();
-			//weather.GetAirQuality();
-			//weather.Upload();
+			ValidationCheck();
 	}
 	void Setdate() {
 		Date now = new Date();
