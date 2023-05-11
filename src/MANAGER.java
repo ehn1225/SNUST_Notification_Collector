@@ -9,43 +9,41 @@ import java.sql.SQLException;
 import java.util.*;
 import java.sql.ResultSet;
 
-
 public class MANAGER {
 	static int totalnotice = 0; //아이템의 개수
 	Vector<HOMEPAGE> pagelist; //홈페이지 배열
-	static String date = "";
+	static String date = "2023-05-04";	//for HOMEPAGE Parser
+	static String sqldate = "20230504";	//for SQL Query
+
 	Connection conn;
 
 	void Upload() {
 		try {
 			java.sql.Statement stmt = conn.createStatement();
-	        
-			//오늘 날짜로 된 테이블이 없다면 생성	        
-	        String sqlQuery = "CREATE TABLE IF NOT EXISTS " + date + 
-	        		"(url TEXT NOT NULL PRIMARY KEY, category TEXT, number INTEGER, title TEXT, uploader TEXT, timestamp TEXT);";
+			
+			//If not exist today's table, Create table
+			String sqlQuery = "CREATE TABLE IF NOT EXISTS INS" + sqldate + "(url VARCHAR(200) PRIMARY KEY NOT NULL, category TINYTEXT, number INT, title TINYTEXT, uploader TINYTEXT, timestamp DATETIME);";
 			stmt.execute(sqlQuery);
-			
 			PreparedStatement pstmt = null;
-	        String sql = "INSERT INTO " + date + "(url, category, number, title, uploader, timestamp) VALUES "
-	        		+ "(?, ?, ?, ?, ?, (datetime('now', 'localtime')) WHERE NOT EXISTS(SELECT URL FROM " + date + " WHERE URL=?);";
-			
+			int item_count = 0;
+			//insert item to table
+	        String sql = "REPLACE INTO INS" + sqldate + "(url, category, number, title, uploader, timestamp) VALUES (?, ?, ?, ?, ?, (now()));";
 			for(HOMEPAGE page : pagelist) {
 				Iterator<ITEM> seek = page.itemlist.iterator();
 				while(seek.hasNext()) {
+					item_count++;
 					ITEM item = seek.next();
-					 pstmt = conn.prepareStatement(sql);
-				     pstmt.setString(1, page.url+item.url);
-				     pstmt.setString(2, page.category);
-				     pstmt.setInt(3, item.num);
-				     pstmt.setString(4, item.title);
-				     pstmt.setString(5, item.uploader);
-				     pstmt.setString(6, page.url+item.url);
-				     pstmt.executeUpdate();
+					pstmt = conn.prepareStatement(sql);
+				    pstmt.setString(1, page.url+item.url);
+				    pstmt.setString(2, page.category);
+				    pstmt.setInt(3, item.num);
+				    pstmt.setString(4, item.title);
+				    pstmt.setString(5, item.uploader);
+				    pstmt.executeUpdate();
 				}
-			}		
-			stmt.execute("Replace into UpdateTime values(datetime('now', 'localtime'))");		
+			}
 			stmt.close();
-			Logwriter("MANAGER::Upload", "Complete sql upload.");
+			Logwriter("MANAGER::Upload", "Upload Complete (upload size : " + item_count + ")");
 			if (pstmt != null && !pstmt.isClosed())
                  pstmt.close();
 		}
@@ -58,13 +56,12 @@ public class MANAGER {
 		}
 	}
 	void ValidationCheck() {
-		//DB의 모든 URL 리스트 순회하면서 URL에 접속되는지 -> 조회수가 증가할 수 있음
 		//DB의 모든 URL을 리스트로 가져오고, Upload할 때 마다 제거하는 식으로 검증
 		//리스트에 남아있는 것은 삭제된 게시글 -> DB에서 삭제.
 		Vector<String> list = new Vector<String>(); 
         try{
 			java.sql.Statement stmt = conn.createStatement();
-			String sql = "SELECT url FROM " + date;
+			String sql = "SELECT url FROM INS" + sqldate + ";";
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()){
 				String url = rs.getString(1);
@@ -75,8 +72,9 @@ public class MANAGER {
 				Iterator<ITEM> seek = page.itemlist.iterator();
 				while(seek.hasNext()) {
 					ITEM item = seek.next();
-					if(list.contains(item.url)) {
-						list.remove(item.url);
+					String url = page.url + item.url;
+					if(list.contains(url)) {
+						list.remove(url);
 					}
 				}
 			}
@@ -84,10 +82,10 @@ public class MANAGER {
 			//List에 남아 있는 것은 삭제된 게시글이므로, DB에서 DELETE 수행
 			int deleteSize = list.size();
 			for(String url : list) {
-				stmt.execute("DELETE FROM " + date + " WHERE url='" + url +"';");		
+				stmt.execute("DELETE FROM INS" + sqldate + " WHERE url='" + url +"';");		
 			}
 			stmt.close();
-			Logwriter("MANAGER::ValidationCheck", "ValidationCheck Complete(" + deleteSize + "item removed)");
+			Logwriter("MANAGER::ValidationCheck", "ValidationCheck Complete (remove size : " + deleteSize + ")");
 
         }
 		catch(SQLException e){
@@ -97,13 +95,12 @@ public class MANAGER {
 	void CreateConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String ADDR = "192.168.12.12";
+			String ADDR = "";
 			String ID = "";
 			String PASSWORD = "";
 			conn = DriverManager.getConnection("jdbc:mysql://"+ ADDR, ID, PASSWORD);
 	    	Logwriter("MANAGER::CreateConnection", "DB connection successful");
 		}
-		
 	    catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
 	    	Logwriter("MANAGER::CreateConnection", "CommunicationsException : Check DB Connection Information");
 	        System.out.println(e);
@@ -165,7 +162,9 @@ public class MANAGER {
 	void Setdate() {
 		Date now = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
 		date = sdf.format(now);
+		sqldate = sdf2.format(now);
 		Logwriter("MANAGER::Setdate", "Set date to " + date);
 	}
 	static String Gettime() {
