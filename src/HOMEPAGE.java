@@ -1,7 +1,6 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.*;
-import java.util.Iterator;
 import java.util.Vector;
 
 public class HOMEPAGE {
@@ -17,7 +16,9 @@ public class HOMEPAGE {
 		try {
 			itemlist.clear();
 			Document doc = Jsoup.connect(url).get();
-			category = doc.title().replace("서울과학기술대학교 - 정보·민원서비스 - 대학정보알림 - ", "");
+			String temp[] = new String[10];
+			temp = doc.title().split(" ");
+			category = temp[temp.length - 1];
 			Makeitem(doc.select("tr.body_tr"), 1);
 			MANAGER.totalnotice += itemlist.size();
 			MANAGER.Logwriter("HOMEPAGE::Load", category + '(' + itemlist.size() + ')');

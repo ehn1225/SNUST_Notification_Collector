@@ -1,0 +1,31 @@
+services:
+  db:
+    container_name: ins-mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=qwer1234    #비밀번호 변경
+      - MYSQL_DATABASE=INS
+      - TZ=Asia/Seoul
+    networks:
+      - ins-net
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - db
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - TZ=Asia/Seoul
+      - INS_MYSQL_ADDR=ins-mysql:3306/INS
+      - INS_MYSQL_ID=root
+      - INS_MYSQL_PW=qwer1234
+      - INS_INTERVAL=60000   #5min = 300000ms
+    networks:
+      - ins-net
+networks:
+  ins-net:
+

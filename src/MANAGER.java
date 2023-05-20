@@ -95,11 +95,16 @@ public class MANAGER {
 	void CreateConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String ADDR = "";
-			String ID = "";
-			String PASSWORD = "";
+			String ADDR = System.getenv("INS_MYSQL_ADDR");		//"100.94.42.47:3306/INS";
+			String ID = System.getenv("INS_MYSQL_ID");			//"root";
+			String PASSWORD = System.getenv("INS_MYSQL_PW");	//"qwer1234";
+			if(ADDR == null || ID == null || PASSWORD == null) {
+		    	Logwriter("MANAGER::CreateConnection", "Check Environment Variable(DB)");
+		    	System.exit(1);
+			}
 			conn = DriverManager.getConnection("jdbc:mysql://"+ ADDR, ID, PASSWORD);
 	    	Logwriter("MANAGER::CreateConnection", "DB connection successful");
+	    	return;
 		}
 	    catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
 	    	Logwriter("MANAGER::CreateConnection", "CommunicationsException : Check DB Connection Information");
@@ -113,6 +118,9 @@ public class MANAGER {
 			Logwriter("MANAGER::CreateConnection", "Exception");
 			System.out.println(e);
 		}
+		Logwriter("MANAGER::CreateConnection", "TERMINATE");
+		System.exit(1);
+
 	}
 	void Getnotice() {
 		totalnotice = 0;
@@ -140,25 +148,37 @@ public class MANAGER {
             }
             Logwriter("MANAGER::Constructor", "Number of URLs read : " + pagelist.size());
             bufReader.close();
-            filereader.close();            
+            filereader.close();
             CreateConnection();
-        }catch (FileNotFoundException e) {
+            return;
+        }
+		catch (FileNotFoundException e) {
             Logwriter("MANAGER::Constructor", "<FileNotFoundException>Check URL file name!");
             System.out.println(e);
-			System.exit(1);
         }
 		catch(IOException e){
             Logwriter("MANAGER::Constructor", "<IOException>");
             System.out.println(e);
-			System.exit(1);
         }
+        Logwriter("MANAGER::Constructor", "TERMINATE");
+		System.exit(1);
+
 	}
 	void Run() throws InterruptedException {
+		int interval = 300000;
+		String strInterval = System.getenv("INS_INTERVAL");
+		if(strInterval != null) {
+			interval = Integer.parseInt(strInterval);
+		}
+		while(true) {
 			Setdate();
 			Getnotice();
 			Upload();
 			ValidationCheck();
+			Thread.sleep(interval);
+		}
 	}
+	
 	void Setdate() {
 		Date now = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
