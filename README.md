@@ -23,6 +23,12 @@
   - Docker 20.10.21
     - MariaDB
     - Node.js v16.17.0
+
+## 과거 프로젝트
+- WEB(1차, 2차) : [Intelligent Notification Server(INS)](https://github.com/ehn1225/Projects/tree/master/Intelligent_Notification_Server(INS))
+- 윈도우_1차 : [information_receiver](https://github.com/ehn1225/Projects/tree/master/SeoulTech_Notice_1st_Gen)
+- 윈도우_2차 : [SeoulTech_Notice_2Gen](https://github.com/ehn1225/Projects/tree/master/SeoulTech_Notice_2nd_Gen)
+
    
 ## 실행 화면
 - 추가예정
