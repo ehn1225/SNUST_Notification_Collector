@@ -12,8 +12,8 @@ import java.sql.ResultSet;
 public class MANAGER {
 	static int totalnotice = 0; //아이템의 개수
 	Vector<HOMEPAGE> pagelist; //홈페이지 배열
-	static String date = "2023-05-04";	//for HOMEPAGE Parser
-	static String sqldate = "20230504";	//for SQL Query
+	static String date = "2023-09-17";	//for HOMEPAGE Parser
+	static String sqldate = "20230917";	//for SQL Query
 
 	Connection conn;
 
@@ -143,7 +143,8 @@ public class MANAGER {
             while((line = bufReader.readLine()) != null){
             	//Except blank line or comment
             	if(line.compareTo("") == 0 || line.charAt(0) == '#') continue;
-            	pagelist.add(new HOMEPAGE(line));
+            	String info[] = line.split(","); //CSV (Comma-separated values)
+            	pagelist.add(new HOMEPAGE(info[0], info[1]));
                 //Logwriter("MANAGER", "Append URL : " + line);
             }
             Logwriter("MANAGER::Constructor", "Number of URLs read : " + pagelist.size());

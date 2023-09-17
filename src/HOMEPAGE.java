@@ -8,7 +8,8 @@ public class HOMEPAGE {
 	String category = "";
 	Vector <ITEM> itemlist = new Vector<ITEM>();
 	
-	HOMEPAGE(String URL){
+	HOMEPAGE(String category, String URL){
+		this.category = category;
 		this.url = URL;
 	}
 	
@@ -16,9 +17,6 @@ public class HOMEPAGE {
 		try {
 			itemlist.clear();
 			Document doc = Jsoup.connect(url).get();
-			String temp[] = new String[10];
-			temp = doc.title().split(" ");
-			category = temp[temp.length - 1];
 			Makeitem(doc.select("tr.body_tr"), 1);
 			MANAGER.totalnotice += itemlist.size();
 			MANAGER.Logwriter("HOMEPAGE::Load", category + '(' + itemlist.size() + ')');
