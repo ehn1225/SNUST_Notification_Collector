@@ -24,6 +24,25 @@
     - MariaDB
     - Node.js v16.17.0
 
+## 실행 방법
+ - 도커 설치 방법
+  - ```sudo apt install docker.io```
+- 도커 권한 부여
+  - ```sudo usermod -aG docker $USER && newgrp docker```
+- 도커 컴포즈 설치
+  - ```sudo apt install docker-compose```
+- 도커 실행
+  - ```docker-compose up -d```
+- 도커 종료
+  - ```docker-compose down```
+- 도커 운영 상태 확인
+  - ```docker-compose ps```
+- 프로젝트 재빌드
+  - ```docker-compose up --build --force-recreate -d```
+- mysql 직접 접속
+  - ```mysql -h 127.0.0.1 -P 3306 -u root -p``` (비밀번호는 docker-compose.yml 파일에 기재되어 있음)
+  - ```docker-compose.yml``` db에 ports 항목 추가 (포트 3306:3306)
+
 ## 과거 프로젝트
 - WEB(1차, 2차) : [Intelligent Notification Server(INS)](https://github.com/ehn1225/Projects/tree/master/Intelligent_Notification_Server(INS))
 - 윈도우_1차 : [information_receiver](https://github.com/ehn1225/Projects/tree/master/SeoulTech_Notice_1st_Gen)

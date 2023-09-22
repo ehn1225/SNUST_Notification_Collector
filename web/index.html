@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>INS</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="60">
+        <link href="/static/css/main.css" rel="stylesheet" type="text/css">
+        <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,200,200italic,300,300italic,400italic,600,600italic,700,700italic,900' rel='stylesheet' type='text/css'>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="/static/js/main.js"></script>
+        <script>
+            $(document).ready(function () {
+            $.getJSON('/getData', function (data) {
+                var list = document.getElementById('itemList');
+                data.forEach(item => {
+                    var item = `
+                        <div class="profile">
+                            <h3 class="profile-name">${item.category}</h3>
+                            <p class="profile-description">
+                                <a href="${item.url}" target="_blank">${item.title}</a><br>
+                                <small>${item.uploader}</small>
+                            </p>
+                        </div>
+                    `;
+                    list.innerHTML += item;
+                });
+            });
+        });
+        </script>
+    </head>
+    <body>
+        <header>
+            <div class="mobile_nav">        
+                <div id="logo">
+                    INS
+                </div>
+                <nav>
+                    <div id="menu"></div>
+                    <ul id="menu_nav">
+                        <li><a href="#notice">SEOULTECH NOTICE</a></li>
+                        <li><a href="#info">Info</a></li>
+                    </ul> 
+                </nav>              
+            </div>
+        </header>
+
+        <div id="notice" class="page">
+            <div class="container">
+                <div class="row">
+                    <div class="title-page">
+                        <h2 class="title">TODAY'S NOTICE</h2>
+                    </div>
+                </div>
+                <div class="row" id="itemList">
+                   
+                </div>
+            </div>
+        </div>
+
+        <div id="info" class="page">
+            <div class="container">
+                <div class="title-page">
+                    <h2 class="title">User Guide</h2>
+                    <h3 class="title-description">사용안내</h3>
+                </div>
+                    <ul class="nav-tabs" id="tab">
+                        <li class="active"><a>Info</a></li>
+                        <li><a>Dev</a></li>
+                        <li><a>Source</a></li>  
+                    </ul>
+                    <div class="tab-content" id="tab_con">
+                        <div class="tab-pane active">
+                            공지사항은 5분 간격으로 재갱신 됩니다.<br>
+                            이 페이지는 모바일에 최적화되었습니다.
+                        </div>
+                        <div class="tab-pane">
+                            <2023.09.22>서비스 개발<br>
+                        </div>
+                        <div class="tab-pane">
+                            <p>디자인 : brushed (http://www.alessioatzeni.com/blog/brushed-template/)</p>
+                            <p>프로젝트 깃허브 (https://github.com/ehn1225/SNUST_Notification_Collector)</p>
+                            <p>서울과학기술대학교 (https://www.seoultech.ac.kr/index.jsp)</p>
+                        </div>  
+                    </div>
+                <div class="links">
+                    <a class="button" href="https://github.com/ehn1225"title="GitHub Profile" target="_blank">ITS</a>
+                    <a class="button" href="https://www.seoultech.ac.kr/index.jsp"title="SEOUL TECH" target="_blank">SEOULTECH</a>
+                </div>
+            </div>
+        </div>
+           
+        <footer>
+            <p class="credits">
+                서울과학기술대학교 공지사항 수신기 for Web<br>
+				[ LYC | INS Project ]
+            </p>
+        </footer>
+    </body>
+</html>
