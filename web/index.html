@@ -10,22 +10,9 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="/static/js/main.js"></script>
         <script>
+            let today = new Date();
             $(document).ready(function () {
-            $.getJSON('/getData', function (data) {
-                var list = document.getElementById('itemList');
-                data.forEach(item => {
-                    var item = `
-                        <div class="profile">
-                            <h3 class="profile-name">${item.category}</h3>
-                            <p class="profile-description">
-                                <a href="${item.url}" target="_blank">${item.title}</a><br>
-                                <small>${item.uploader}</small>
-                            </p>
-                        </div>
-                    `;
-                    list.innerHTML += item;
-                });
-            });
+                UpdateNotice(today);
         });
         </script>
     </head>
@@ -45,11 +32,12 @@
             </div>
         </header>
 
-        <div id="notice" class="page">
+        <div id="notice" class="page-alternate">
             <div class="container">
                 <div class="row">
                     <div class="title-page">
                         <h2 class="title">TODAY'S NOTICE</h2>
+                        <h3 class="title-description"><a href="javascript:ChangeDate(-1);">&lt; </a><span  id="dateBox"></span><a href="javascript:ChangeDate(1);"> &gt;</a></h3>
                     </div>
                 </div>
                 <div class="row" id="itemList">
@@ -84,8 +72,8 @@
                         </div>  
                     </div>
                 <div class="links">
-                    <a class="button" href="https://github.com/ehn1225"title="GitHub Profile" target="_blank">ITS</a>
-                    <a class="button" href="https://www.seoultech.ac.kr/index.jsp"title="SEOUL TECH" target="_blank">SEOULTECH</a>
+                    <a class="button" href="https://github.com/ehn1225" title="GitHub Profile" target="_blank">GitHub</a>
+                    <a class="button" href="https://www.seoultech.ac.kr/index.jsp" title="SEOUL TECH" target="_blank">SEOULTECH</a>
                 </div>
             </div>
         </div>

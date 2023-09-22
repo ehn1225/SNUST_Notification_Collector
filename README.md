@@ -19,13 +19,13 @@
   - json-simple-1.1.1
   - jsoup-1.15.4
   - mysql-connector-j-8.0.32
-- Ubuntu (Back-End)
-  - Docker 20.10.21
-    - MariaDB
-    - Node.js v16.17.0
+- Ubuntu 22.04 (Back-End)
+  - Docker 24.0.5
+  - mysql(image) : 8.0.33
+  - Node.js v18.18.0
 
 ## 실행 방법
- - 도커 설치 방법
+- 도커 설치 방법
   - ```sudo apt install docker.io```
 - 도커 권한 부여
   - ```sudo usermod -aG docker $USER && newgrp docker```
