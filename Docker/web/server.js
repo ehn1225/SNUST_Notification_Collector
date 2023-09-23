@@ -5,18 +5,18 @@ app.use('/static', express.static(__dirname + '/_include'));
 app.use(express.json());
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'qwer1234',
-    database: 'INS',
+    host: process.env.INS_MYSQL_ADDR,
+    user: process.env.INS_MYSQL_ID,
+    password: process.env.INS_MYSQL_PW,
+    database: process.env.MYSQL_DATABASE
 });
 
 db.connect((err) => {
     if (err) {
-      console.error('MySQL 연결 오류:', err);
+      console.error('MySQL DB 연결 오류:', err);
       process.exit();
     } else {
-      console.log('MySQL 연결 성공');
+      console.log('MySQL DB 연결 성공');
     }
 });
 
@@ -28,22 +28,27 @@ app.get('', (request, response) => {
 app.get('/getData', (request, response) => {
     //날짜 원하는 날짜로 변경 and 최소한의 정렬 필요
     var date = request.query.date;
-    date = "INS" + (date ? date : '20230922');
-    console.log(date);
 
-    //테이블명은 prepare statment를 적용할 수 없음.
-    //직접 필터링해야함
-    db.query('SELECT * FROM ' + date, (err, results) => {
+    const regex = /^\d{8}$/;
+    const isMatch = regex.test(date);
+    if (!isMatch) {
+        console.log("INVALID VALUE : " + date);
+        response.status(404).send('비정상적인 데이터 입력');
+        return;
+    }
+
+    db.query('SELECT * FROM INS' + date, (err, results) => {
         if (err) {
-            console.error('해당 일자의 공지사항 테이블이 없습니다. (' + date + ')');
+            console.error("Data No Exist : " + date);
             response.status(200).json([]);
             return;
         }
+        console.log("Data Response : " + date);
         response.status(200).json(results);
     });
   });
 
-const port = 80;
+const port = process.env.WEB_SERVICE_PORT;
 app.listen(port, () => {
     console.log(`Server running at http://127.0.0.1:${port}`);
 });

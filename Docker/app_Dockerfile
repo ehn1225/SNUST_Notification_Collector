@@ -1,0 +1,10 @@
+FROM adoptopenjdk/openjdk11:alpine-jre
+
+#INSERVER.jar 파일을 app.jar로 이름 변경 및 복사
+COPY *.jar app.jar
+
+# URLs.csv 파일 복사
+COPY URLs.csv URLs.csv
+
+# 애플리케이션 실행
+ENTRYPOINT ["java", "-jar", "app.jar"]

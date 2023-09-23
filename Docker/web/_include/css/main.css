@@ -18,12 +18,13 @@ body{
 	line-height:28px;
 }
 
-a{
+a, a:visited{
 	color:#CED4DA;
 	text-decoration: none;
 	cursor: pointer;
 }
-a:hover,a:active,a:focus{
+
+a:hover,a:active{
 	color:#DE5E60;
 	text-decoration:none;
 }
@@ -171,7 +172,7 @@ footer .credits {
 	text-transform: uppercase;	
 }
 
-.button {
+.button, .button:visited {
   	display: inline-block;
   	padding: 13px 26px;  	
   	text-align: center;
@@ -184,9 +185,7 @@ footer .credits {
 }
 
 /*--- Hover/Active/Focus State ---*/
-.button:hover,
-.button:active,
-.button:focus {
+.button:hover, .button:active{
 	background-color: #DE5E60;
 	color:#FFFFFF;
 }

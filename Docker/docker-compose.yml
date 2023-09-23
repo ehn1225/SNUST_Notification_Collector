@@ -1,0 +1,58 @@
+services:
+  #mysql
+  db:
+    container_name: ins-mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=qwer1234      #DB 비밀번호
+      - MYSQL_DATABASE=INS                #DB 이름
+      - TZ=Asia/Seoul
+#    ports:                               #mysql 직접 접속용
+#      - "3306:3306"
+    networks:
+      - ins-net
+
+  #java
+  app:
+    build:
+      context: .
+      dockerfile: app_Dockerfile
+    links:
+      - db
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - TZ=Asia/Seoul
+      - INS_MYSQL_ADDR=ins-mysql:3306/INS
+      - INS_MYSQL_ID=root
+      - INS_MYSQL_PW=qwer1234
+      - INS_INTERVAL=600000                #unit : Millisecond, 5min = 300000ms
+    networks:
+      - ins-net
+  
+  #node.js
+  web:      
+    build:
+      context: .
+      dockerfile: web_Dockerfile
+    links:
+      - db
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - INS_MYSQL_ADDR=ins-mysql
+      - INS_MYSQL_ID=root
+      - INS_MYSQL_PW=qwer1234
+      - MYSQL_DATABASE=INS
+      - WEB_SERVICE_PORT=80                #아래의 ports와 동일하게 설정해야 함
+    ports:
+      - "80:80"
+    networks:
+      - ins-net
+    command: npm start
+networks:
+  ins-net:
+

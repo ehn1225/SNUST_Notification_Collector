@@ -60,12 +60,14 @@ function DateFormatServer(date) {
     var day = date.getDate().toString().padStart(2, '0');
     return year + month + day;
 }
-function FormatDateToYYYYMMDD(date) {
-    //date format : yyyy년 mm월 dd일
+function FormatDateToString(date) {
+    //date format : yyyy년 mm월 dd일 *요일
     var year = date.getFullYear();
     var month = (date.getMonth() + 1).toString().padStart(2, '0');
     var day = date.getDate().toString().padStart(2, '0');
-    return year + '년 ' + month + '월 ' + day + '일';
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
+    const formattedDate = `${year}년 ${month}월 ${day}일 ${dayOfWeek}요일`;
+    return formattedDate;
 }
 
 function ChangeDate(value){
@@ -96,5 +98,5 @@ function UpdateNotice(requestDate){
     });
 
     var dateBox = document.getElementById('dateBox');
-    dateBox.innerText = FormatDateToYYYYMMDD(requestDate);
+    dateBox.innerText = FormatDateToString(requestDate);
 }

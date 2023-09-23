@@ -1,0 +1,13 @@
+FROM node:18.18-alpine
+
+WORKDIR /usr/app
+
+# 애플리케이션 종속성 설치
+COPY web/package*.json /usr/app/
+RUN npm install
+
+# 애플리케이션 소스 코드 복사
+COPY web .
+
+# 애플리케이션 실행
+CMD [ "npm", "start" ]
