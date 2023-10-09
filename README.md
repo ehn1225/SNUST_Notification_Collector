@@ -15,14 +15,17 @@
 - Windows 11 x64
 - Eclipse IDE for Java Developers - 2023-03
 - JavaSE-11
-  - json-simple-1.1.1
-  - jsoup-1.15.4
-  - mysql-connector-j-8.0.32
+  - [jsoup-1.15.4](https://jsoup.org/news/release-1.15.4)
+  - [mysql-connector-j-8.0.32, JDBC](https://www.mysql.com/products/connector/)
 - Ubuntu 22.04 (Back-End)
   - Docker 24.0.5
   - mysql(image) latest (개발 시점 : 8.0.33)
   - Node(image) 18.18-alpine
   - java(image) openjdk11:alpine-jre
+
+## Java 프로그램 빌드 방법
+- Ecilpse IDE를 이용하여 프로젝트 로드
+- file -> export -> Java/Runnable JAR file 선택 후 finish 클릭
 
 ## Docker 설치 방법
 - Docker 설치
@@ -45,6 +48,26 @@
 - mysql 직접 접속
   - ```mysql -h 127.0.0.1 -P 3306 -u root -p```
   - ```docker-compose.yml``` 파일에서 db의 ```ports``` 주석 해제
+
+## docker-compose 환경변수
+### MYSQL
+- ```MYSQL_ROOT_PASSWORD``` : mysql DB root 계정 비밀번호
+- ```MYSQL_DATABASE``` : 사용할 DB 이름
+- ```ports``` : 직접 DB로 접속할 때 사용할 포트
+
+### JAVA
+- ```INS_MYSQL_ADDR``` : mysql DB의 주소와 포트, 데이터베이스 이름
+- ```INS_MYSQL_ID``` : mysql DB의 계정 ID
+- ```INS_MYSQL_PW``` : mysql DB의 계정 비밀번호
+- ```INS_INTERVAL```  : 파싱 주기(초 단위)
+
+### node.js
+- ```INS_MYSQL_ADDR``` : mysql DB의 주소
+- ```INS_MYSQL_ID``` : mysql DB 접속에 사용할 ID
+- ```INS_MYSQL_PW``` : mysql DB 접속에 사용할 비밀번호
+- ```MYSQL_DATABASE``` : 사용할 DB 이름
+- ```WEB_SERVICE_PORT``` : node.js 웹 서비스 포트
+
 
 ## 과거 프로젝트
 - WEB(1차, 2차) : [Intelligent Notification Server(INS)](https://github.com/ehn1225/Projects/tree/master/Intelligent_Notification_Server(INS))

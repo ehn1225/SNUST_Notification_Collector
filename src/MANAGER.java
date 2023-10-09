@@ -95,9 +95,9 @@ public class MANAGER {
 	void CreateConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String ADDR = System.getenv("INS_MYSQL_ADDR");		//"100.94.42.47:3306/INS";
-			String ID = System.getenv("INS_MYSQL_ID");			//"root";
-			String PASSWORD = System.getenv("INS_MYSQL_PW");	//"qwer1234";
+			String ADDR = System.getenv("INS_MYSQL_ADDR");
+			String ID = System.getenv("INS_MYSQL_ID");
+			String PASSWORD = System.getenv("INS_MYSQL_PW");
 			if(ADDR == null || ID == null || PASSWORD == null) {
 		    	Logwriter("MANAGER::CreateConnection", "Check Environment Variable(DB)");
 		    	System.exit(1);
@@ -145,7 +145,7 @@ public class MANAGER {
             	if(line.compareTo("") == 0 || line.charAt(0) == '#') continue;
             	String info[] = line.split(","); //CSV (Comma-separated values)
             	pagelist.add(new HOMEPAGE(info[0], info[1]));
-                //Logwriter("MANAGER", "Append URL : " + line);
+                Logwriter("MANAGER", "Append URL : " + info[1] + "(" + info[0] + ")");
             }
             Logwriter("MANAGER::Constructor", "Number of URLs read : " + pagelist.size());
             bufReader.close();
