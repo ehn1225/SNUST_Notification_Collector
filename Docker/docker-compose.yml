@@ -43,6 +43,7 @@ services:
     depends_on:
       - db
     environment:
+      - TZ=Asia/Seoul
       - INS_MYSQL_ADDR=ins-mysql
       - INS_MYSQL_ID=root
       - INS_MYSQL_PW=qwer1234

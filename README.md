@@ -27,6 +27,12 @@
 - Ecilpse IDE를 이용하여 프로젝트 로드
 - file -> export -> Java/Runnable JAR file 선택 후 finish 클릭
 
+## 원하는 게시판에 대하여 파싱 동작 설정하는 방법
+1. ```URLs.csv``` 파일을 메모장으로 실행
+2. 원하는 게시판이 있는 행의 맨 앞에 있는 주석 기호(#) 제거 : 해당 게시판에 대하여 파싱 수행
+  - 불필요한 게시판이 있는 행의 맨 앞에 주석 기호(#) 추가 : 해당 게시판에 대하여 파싱을 수행하지 않음
+3. ```URLs.csv``` 파일 저장 후 프로젝트 재빌드 및 재실행
+
 ## Docker 설치 방법
 - Docker 설치
   - ```sudo apt install docker.io```
