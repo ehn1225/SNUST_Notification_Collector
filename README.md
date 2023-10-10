@@ -49,7 +49,7 @@
   - ```docker-compose stop``` 또는 ```docker-compose down```
 - 프로젝트 동작 상태 확인
   - ```docker-compose ps```
-- 프로젝트 다시 빌드
+- 프로젝트 다시 빌드(소스코드 또는 URLs.csv 변경 시)
   - ```docker-compose up --build --force-recreate -d```
 - mysql 직접 접속
   - ```mysql -h 127.0.0.1 -P 3306 -u root -p```
