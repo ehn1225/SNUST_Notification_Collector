@@ -8,10 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 import java.sql.ResultSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class MANAGER {
-	static int totalnotice = 0; //아이템의 개수
-	Vector<HOMEPAGE> pagelist; //홈페이지 배열
+	static Vector<HOMEPAGE> pagelist; //홈페이지 배열
 	static String date = "2023-09-17";	//for HOMEPAGE Parser
 	static String sqldate = "20230917";	//for SQL Query
 
@@ -95,9 +98,9 @@ public class MANAGER {
 	void CreateConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String ADDR = System.getenv("INS_MYSQL_ADDR");
-			String ID = System.getenv("INS_MYSQL_ID");
-			String PASSWORD = System.getenv("INS_MYSQL_PW");
+			String ADDR = "100.94.42.140:3306/INS"; //System.getenv("INS_MYSQL_ADDR");
+			String ID = "root";//System.getenv("INS_MYSQL_ID");
+			String PASSWORD = "qwer1234";//System.getenv("INS_MYSQL_PW");
 			if(ADDR == null || ID == null || PASSWORD == null) {
 		    	Logwriter("MANAGER::CreateConnection", "Check Environment Variable(DB)");
 		    	System.exit(1);
@@ -122,14 +125,49 @@ public class MANAGER {
 		System.exit(1);
 
 	}
+	
+	int GetNotificationSize() {
+		int count = 0;
+		for(HOMEPAGE page : pagelist) {
+			count += page.itemlist.size();
+		}
+		return count;		
+	}
+	
 	void Getnotice() {
-		totalnotice = 0;
 		for(HOMEPAGE page : pagelist)
 			page.Load();
-        Logwriter("MANAGER::Getnotice", "Number of loaded : " + totalnotice);
+        Logwriter("MANAGER::Getnotice", "Number of loaded : " + GetNotificationSize());
+	}
+	void GetnoticeByMultiThread() {
+
+		// 첫 번째 스레드 생성 및 시작
+        Thread thread1 = new Thread(new GetNoticeThread(0, 33));
+
+        // 두 번째 스레드 생성 및 시작
+        Thread thread2 = new Thread(new GetNoticeThread(33, 66));
+        Thread thread3 = new Thread(new GetNoticeThread(66, 99));
+        Thread thread4 = new Thread(new GetNoticeThread(99, pagelist.size()));
+
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        thread4.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+            thread3.join();
+            thread4.join();
+        } 
+		catch (Exception e) {
+			Logwriter("MANAGER::GetnoticeByMultiThread", "Exception");
+			System.out.println(e);
+		}
+        Logwriter("MANAGER::Getnotice", "Number of loaded : " + GetNotificationSize());
 	}
 	void Printnotice() {
-        Logwriter("MANAGER::Printnotice", "Total : " + totalnotice);
+        Logwriter("MANAGER::Printnotice", "Notice Size : " + GetNotificationSize());
 		for(HOMEPAGE page : pagelist) 
 			page.Print();
 	}
@@ -173,7 +211,12 @@ public class MANAGER {
 		}
 		while(true) {
 			Setdate();
-			Getnotice();
+			long startTime = System.currentTimeMillis();
+			//Getnotice();
+			GetnoticeByMultiThread();
+			long endTime = System.currentTimeMillis();
+		    long executionTime = endTime - startTime;
+		    Logwriter("MANAGER::Run", "Getnotice()함수 실행 시간: " + executionTime + " 밀리초");
 			Upload();
 			ValidationCheck();
 			Thread.sleep(interval);
@@ -197,4 +240,22 @@ public class MANAGER {
         System.out.println(Gettime() + " | [" + name + "] "+msg);
 	}
 	
+}
+
+class GetNoticeThread implements Runnable {
+    private int start_pos;
+    private int end_pos;
+
+    public GetNoticeThread(int start_pos, int end_pos) {
+        this.start_pos = start_pos;
+        this.end_pos = end_pos;
+    }
+
+    @Override
+    public void run() {
+		for(int idx = start_pos; idx < end_pos; idx++) {
+			HOMEPAGE page = MANAGER.pagelist.get(idx);
+			page.Load();
+		}
+    }
 }

@@ -18,7 +18,6 @@ public class HOMEPAGE {
 			itemlist.clear();
 			Document doc = Jsoup.connect(url).get();
 			Makeitem(doc.select("tr.body_tr"), 1);
-			MANAGER.totalnotice += itemlist.size();
 			MANAGER.Logwriter("HOMEPAGE::Load", category + '(' + itemlist.size() + ')');
 		}
 		catch(Exception e){
