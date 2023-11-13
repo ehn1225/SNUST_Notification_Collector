@@ -135,10 +135,14 @@ public class MANAGER {
 	
 	void Getnotice() {
 		// 스레드 풀의 크기. 최소 1개 ~ 최대 8개
-		int threadCount = Integer.getInteger(System.getenv("INS_THREAD_NUMBER"));
+		int threadCount = 4;
+		String strThreadCount = System.getenv("INS_THREAD_NUMBER");
+		if(strThreadCount != null) {
+			threadCount = Integer.parseInt(strThreadCount);
+		}
 		if(threadCount < 1 || threadCount > 8) {
-			threadCount = 1;
-	        Logwriter("MANAGER::Getnotice", "Number of threads limit exceeded. Set thread Number as 1");
+			threadCount = 4;
+	        Logwriter("MANAGER::Getnotice", "Number of threads limit exceeded. Set thread Number as 4");
 		}
         ExecutorService threadPool = Executors.newFixedThreadPool(threadCount);
 
