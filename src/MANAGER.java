@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.concurrent.TimeUnit;
 
 public class MANAGER {
 	static Vector<HOMEPAGE> pagelist; //홈페이지 배열
@@ -98,9 +98,9 @@ public class MANAGER {
 	void CreateConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String ADDR = "100.94.42.140:3306/INS"; //System.getenv("INS_MYSQL_ADDR");
-			String ID = "root";//System.getenv("INS_MYSQL_ID");
-			String PASSWORD = "qwer1234";//System.getenv("INS_MYSQL_PW");
+			String ADDR = System.getenv("INS_MYSQL_ADDR");
+			String ID = System.getenv("INS_MYSQL_ID");
+			String PASSWORD = System.getenv("INS_MYSQL_PW");
 			if(ADDR == null || ID == null || PASSWORD == null) {
 		    	Logwriter("MANAGER::CreateConnection", "Check Environment Variable(DB)");
 		    	System.exit(1);
@@ -135,36 +135,37 @@ public class MANAGER {
 	}
 	
 	void Getnotice() {
-		for(HOMEPAGE page : pagelist)
-			page.Load();
-        Logwriter("MANAGER::Getnotice", "Number of loaded : " + GetNotificationSize());
-	}
-	void GetnoticeByMultiThread() {
-
-		// 첫 번째 스레드 생성 및 시작
-        Thread thread1 = new Thread(new GetNoticeThread(0, 33));
-
-        // 두 번째 스레드 생성 및 시작
-        Thread thread2 = new Thread(new GetNoticeThread(33, 66));
-        Thread thread3 = new Thread(new GetNoticeThread(66, 99));
-        Thread thread4 = new Thread(new GetNoticeThread(99, pagelist.size()));
-
-        thread1.start();
-        thread2.start();
-        thread3.start();
-        thread4.start();
-
-        try {
-            thread1.join();
-            thread2.join();
-            thread3.join();
-            thread4.join();
-        } 
-		catch (Exception e) {
-			Logwriter("MANAGER::GetnoticeByMultiThread", "Exception");
-			System.out.println(e);
+		// 스레드 풀의 크기. 최소 1개 ~ 최대 8개
+		int threadCount = Integer.getInteger(System.getenv("INS_THREAD_NUMBER"));
+		if(threadCount < 1 || threadCount > 8) {
+			threadCount = 1;
+	        Logwriter("MANAGER::Getnotice", "Number of threads limit exceeded. Set thread Number as 1");
 		}
+        ExecutorService threadPool = Executors.newFixedThreadPool(threadCount);
+
+        //작업을 스레드 풀에 제출
+        for (HOMEPAGE page : pagelist) {
+            threadPool.submit(new Runnable() {
+                @Override
+                public void run() {
+                	page.Load();
+                }
+            });
+        }
+
+        //새로운 작업이 submit되는 것을 방지하고, 스레드 풀이 종료될 때 까지 대기
+        //대기하지 않을 경우, 공지사항이 다 로드되기 전에 DB에 저장하는 단계가 진행됨.
+        threadPool.shutdown();
+        try {
+            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }		
+
+        // 스레드 풀을 완전히 종료
+        threadPool.shutdownNow();
         Logwriter("MANAGER::Getnotice", "Number of loaded : " + GetNotificationSize());
+        
 	}
 	void Printnotice() {
         Logwriter("MANAGER::Printnotice", "Notice Size : " + GetNotificationSize());
@@ -211,12 +212,7 @@ public class MANAGER {
 		}
 		while(true) {
 			Setdate();
-			long startTime = System.currentTimeMillis();
-			//Getnotice();
-			GetnoticeByMultiThread();
-			long endTime = System.currentTimeMillis();
-		    long executionTime = endTime - startTime;
-		    Logwriter("MANAGER::Run", "Getnotice()함수 실행 시간: " + executionTime + " 밀리초");
+			Getnotice();
 			Upload();
 			ValidationCheck();
 			Thread.sleep(interval);
@@ -240,22 +236,4 @@ public class MANAGER {
         System.out.println(Gettime() + " | [" + name + "] "+msg);
 	}
 	
-}
-
-class GetNoticeThread implements Runnable {
-    private int start_pos;
-    private int end_pos;
-
-    public GetNoticeThread(int start_pos, int end_pos) {
-        this.start_pos = start_pos;
-        this.end_pos = end_pos;
-    }
-
-    @Override
-    public void run() {
-		for(int idx = start_pos; idx < end_pos; idx++) {
-			HOMEPAGE page = MANAGER.pagelist.get(idx);
-			page.Load();
-		}
-    }
 }
