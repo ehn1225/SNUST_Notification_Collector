@@ -65,7 +65,8 @@
 - ```INS_MYSQL_ADDR``` : mysql DB의 주소와 포트, 데이터베이스 이름
 - ```INS_MYSQL_ID``` : mysql DB의 계정 ID
 - ```INS_MYSQL_PW``` : mysql DB의 계정 비밀번호
-- ```INS_INTERVAL```  : 파싱 주기(초 단위)
+- ```INS_INTERVAL```  : 파싱 주기(단위 : ms, 기본값 600000ms(10분))
+- ```INS_THREAD_NUMBER``` : 멀티 스레드 개수 (최소 1 ~ 최대 8개, 기본값 4개)
 
 ### node.js
 - ```INS_MYSQL_ADDR``` : mysql DB의 주소

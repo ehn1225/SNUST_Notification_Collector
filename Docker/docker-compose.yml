@@ -29,6 +29,7 @@ services:
       - INS_MYSQL_ID=root
       - INS_MYSQL_PW=qwer1234
       - INS_INTERVAL=600000                #unit : Millisecond, 5min = 300000ms
+      - INS_THREAD_NUMBER=4                #Multi thread number; Range : [1, 8]
     networks:
       - ins-net
   
