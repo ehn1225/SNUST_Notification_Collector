@@ -1,11 +1,15 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.*;
+
+import java.net.SocketTimeoutException;
 import java.util.Vector;
 
 public class HOMEPAGE {
 	String url="";
 	String category = "";
+	static int timeOut = 1000;		//Default Time Out : 1000ms
+	boolean loadComplete = false;
 	Vector <ITEM> itemlist = new Vector<ITEM>();
 	
 	HOMEPAGE(String category, String URL){
@@ -16,9 +20,15 @@ public class HOMEPAGE {
 	void Load(){
 		try {
 			itemlist.clear();
-			Document doc = Jsoup.connect(url).get();
+			loadComplete = false;
+			Document doc = Jsoup.connect(url).timeout(timeOut).get();
 			Makeitem(doc.select("tr.body_tr"), 1);
 			MANAGER.Logwriter("HOMEPAGE::Load", category + '(' + itemlist.size() + ')');
+			loadComplete = true;
+		}
+		catch(SocketTimeoutException e) {
+			//만약 응답시간이 timeout을 초과한다면
+			MANAGER.Logwriter("HOMEPAGE::Load", "<Exception> " + url + "(" + category + ") : Exceed Time Limit " + timeOut);
 		}
 		catch(Exception e){
 			MANAGER.Logwriter("HOMEPAGE::Load", "<Exception> " + url);

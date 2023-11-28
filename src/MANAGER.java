@@ -155,7 +155,6 @@ public class MANAGER {
                 }
             });
         }
-
         //새로운 작업이 submit되는 것을 방지하고, 스레드 풀이 종료될 때 까지 대기
         //대기하지 않을 경우, 공지사항이 다 로드되기 전에 DB에 저장하는 단계가 진행됨.
         threadPool.shutdown();
@@ -163,10 +162,31 @@ public class MANAGER {
             threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }		
+        }
 
         // 스레드 풀을 완전히 종료
         threadPool.shutdownNow();
+        
+        //타임아웃에 따른 미처리된 홈페이지 파싱; 하나의 스레드에서 담당함.
+        while(true) {
+        	//만약 모든 홈페이지의 공지사항이 로드되었다면, 해당 반복문을 종료
+        	boolean check = true;
+        	for (HOMEPAGE page : pagelist) {
+        		check = check && page.loadComplete;
+        	}
+        	if(check == true)
+        		break;
+        	
+        	//로드가 안된 공지사항이 존재한다면 다시 로드를 시도함.
+            for (HOMEPAGE page : pagelist) {
+            	if(page.loadComplete == true)
+            		continue;
+                page.Load();
+            }
+            //타임아웃 시간을 2배씩 증가하면서 반복 수행
+            HOMEPAGE.timeOut *= 2;
+        }
+        
         Logwriter("MANAGER::Getnotice", "Number of loaded : " + GetNotificationSize());
         
 	}
@@ -192,7 +212,7 @@ public class MANAGER {
             Logwriter("MANAGER::Constructor", "Number of URLs read : " + pagelist.size());
             bufReader.close();
             filereader.close();
-            CreateConnection();
+            //CreateConnection();
             return;
         }
 		catch (FileNotFoundException e) {
@@ -216,8 +236,8 @@ public class MANAGER {
 		while(true) {
 			Setdate();
 			Getnotice();
-			Upload();
-			ValidationCheck();
+			//Upload();
+			//ValidationCheck();
 			Thread.sleep(interval);
 		}
 	}
