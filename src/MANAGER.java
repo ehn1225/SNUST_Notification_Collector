@@ -212,7 +212,7 @@ public class MANAGER {
             Logwriter("MANAGER::Constructor", "Number of URLs read : " + pagelist.size());
             bufReader.close();
             filereader.close();
-            //CreateConnection();
+            CreateConnection();
             return;
         }
 		catch (FileNotFoundException e) {
@@ -236,8 +236,8 @@ public class MANAGER {
 		while(true) {
 			Setdate();
 			Getnotice();
-			//Upload();
-			//ValidationCheck();
+			Upload();
+			ValidationCheck();
 			Thread.sleep(interval);
 		}
 	}
