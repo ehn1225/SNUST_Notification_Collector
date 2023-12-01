@@ -135,6 +135,9 @@ public class MANAGER {
 	
 	void Getnotice() {
 		// 스레드 풀의 크기. 최소 1개 ~ 최대 8개
+        int current_timeOut = HOMEPAGE.timeOut;
+        Logwriter("MANAGER::Getnotice", "함수 시작(타임아웃 : " + current_timeOut + ")");
+
 		int threadCount = 4;
 		String strThreadCount = System.getenv("INS_THREAD_NUMBER");
 		if(strThreadCount != null) {
@@ -176,7 +179,8 @@ public class MANAGER {
         	}
         	if(check == true)
         		break;
-        	
+            HOMEPAGE.timeOut *= 2;
+
         	//로드가 안된 공지사항이 존재한다면 다시 로드를 시도함.
             for (HOMEPAGE page : pagelist) {
             	if(page.loadComplete == true)
@@ -184,17 +188,19 @@ public class MANAGER {
                 page.Load();
             }
             //타임아웃 시간을 2배씩 증가하면서 반복 수행
-            HOMEPAGE.timeOut *= 2;
         }
-        
+	    
+        HOMEPAGE.timeOut = current_timeOut; //timeout 기본값으로 원상 복구
         Logwriter("MANAGER::Getnotice", "Number of loaded : " + GetNotificationSize());
         
 	}
+	
 	void Printnotice() {
         Logwriter("MANAGER::Printnotice", "Notice Size : " + GetNotificationSize());
 		for(HOMEPAGE page : pagelist) 
 			page.Print();
 	}
+	
 	MANAGER(String filename){
 		try{
 			Setdate();

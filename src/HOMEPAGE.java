@@ -8,7 +8,7 @@ import java.util.Vector;
 public class HOMEPAGE {
 	String url="";
 	String category = "";
-	static int timeOut = 1000;		//Default Time Out : 1000ms
+	static int timeOut = 500;		//Default Time Out : 500ms
 	boolean loadComplete = false;
 	Vector <ITEM> itemlist = new Vector<ITEM>();
 	
